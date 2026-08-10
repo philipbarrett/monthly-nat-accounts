@@ -1,0 +1,5 @@
+# Copy this file to .Renviron (gitignored) and fill in your own keys.
+# FRED: free, instant signup at https://fred.stlouisfed.org/docs/api/api_key.html
+# BEA:  free, instant signup at https://apps.bea.gov/API/signup/
+FRED_API_KEY=
+BEA_API_KEY=

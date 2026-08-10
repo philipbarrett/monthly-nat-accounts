@@ -1,0 +1,17 @@
+# Secrets
+.Renviron
+
+# R artifacts
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+
+# OS noise
+.DS_Store
+
+# Regenerable outputs (reproduced by re-running the pipeline)
+outputs/*/final_data/*.xlsx
+outputs/*/final_data/*.rdata
+outputs/*/graphs/*.pdf
+outputs/*/graphs/*.png
