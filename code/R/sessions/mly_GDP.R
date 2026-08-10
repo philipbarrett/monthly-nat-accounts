@@ -127,9 +127,13 @@ source(here::here("code/R/sessions/_data_spec.R"))
 make.dir.if.needed <- function(dir.path) if(!file.exists(dir.path)) dir.create(dir.path,recursive = TRUE)
 for(x in c('graphs', 'tables', 'input_data', 'final_data') ) make.dir.if.needed(paste0( l.options$save.dir, x ) )
   # Make the output folder if required
-l.dfs <- make.gdp.data( l.quarterly.data, l.monthly.data, l.derived.series, 
+l.dfs <- make.gdp.data( l.quarterly.data, l.monthly.data, l.derived.series,
                         l.x, l.q, l.options )
 l.quarterly.data <- l.dfs$data.qly
+l.options$end.date <- l.dfs$end.date.effective
+  # Reflects the GDP-quarter-capped sample end (see data_helpers.R), not the
+  # generous upper bound set above -- keeps saved provenance honest.
+cat("Effective end date (capped to last complete GDP quarter):", l.options$end.date, "\n")
 
 
 #### 3. Make Trends ####

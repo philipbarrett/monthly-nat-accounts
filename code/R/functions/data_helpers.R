@@ -53,14 +53,30 @@ make.gdp.data <- function( data.qly, data.mly, derived.data, x, q, options ){
                                      data.qly$components ), options=options )
     df.y <- df.qly.in %>%
       mutate( date=date.adjust(date) %m+% months(2) )%>%
-      filter(date >=start.date, date<=end.date) 
+      filter(date >=start.date, date<=end.date)
       # Clean and prep
-    
+
     write_csv( df.y, file=paste0( save.dir, 'input_data/quarterly.csv' ) )
   }else{
     df.y <- read_csv( paste0( save.dir, 'input_data/quarterly.csv' ) )
   }
-  
+
+  ## 2.1b Cap the effective sample end at the last month of the latest complete
+  ## GDP quarter -- Philip's explicit policy (2026-08-10): nothing published
+  ## should be interpretable as a forecast. Monthly indicator "jagged edge"
+  ## staggering (some series lag others by a month or two) is fine and is
+  ## exactly what nowcasting means; what's not fine is the state extrapolating
+  ## into a quarter with no real GDP anchor at all, which is what the original
+  ## generous end.date (Sys.Date(), an upper bound only) allowed whenever
+  ## monthly indicators happened to already reach further than the latest
+  ## quarterly release. `date` here is already in the "last month of the
+  ## quarter" convention (the %m+% months(2) shift above), so this is exactly
+  ## "the last month of the last quarter for which we have GDP data" --
+  ## Philip's own words. Overrides the input end.date downstream (monthly
+  ## filtering, the full month grid) but NOT the quarterly pull's own filter
+  ## above, which needs the generous bound to find the latest quarter at all.
+  end.date <- as.character(max(df.y$date, na.rm=TRUE))
+
   if(make.gdp.err){
   # NB. Compute error *after* reading in for speed
     df.y <- df.y %>%
@@ -173,8 +189,15 @@ make.gdp.data <- function( data.qly, data.mly, derived.data, x, q, options ){
   df.x.y.check.10 %>% print(n=Inf)
   
   #### 3. Set up the output ####
-  l.out <- list( df.y=df.y, df.x=df.x, df.q=df.q, 
-                 df.check=df.x.y.check, data.qly=data.qly, df.sign=df.sign )
+  l.out <- list( df.y=df.y, df.x=df.x, df.q=df.q,
+                 df.check=df.x.y.check, data.qly=data.qly, df.sign=df.sign,
+                 end.date.effective=end.date )
+    # end.date.effective: the actual (GDP-quarter-capped) end date used for
+    # monthly/derived data, which may be earlier than options$end.date (a
+    # deliberately generous upper bound for the raw pull). Callers should
+    # overwrite their own l.options$end.date with this before saving, so
+    # provenance in everything.rdata reflects the real sample end, not the
+    # generous bound.
   return(l.out)
 }
 

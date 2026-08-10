@@ -104,6 +104,10 @@ cat("=========================================\n\n")
 #### 2. Download data ####
 l.dfs <- make.gdp.data( l.quarterly.data, l.monthly.data, l.derived.series, l.x, l.q, l.options )
 l.quarterly.data <- l.dfs$data.qly
+l.options$end.date <- l.dfs$end.date.effective
+  # Reflects the GDP-quarter-capped sample end (see data_helpers.R), not the
+  # generous upper bound passed in above -- keeps saved provenance honest.
+cat("Effective end date (capped to last complete GDP quarter):", l.options$end.date, "\n")
 
 #### 3. Trends ####
 l.df.trends <- make.trend.dfs( l.dfs, l.quarterly.data, l.options )
