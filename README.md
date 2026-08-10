@@ -1,63 +1,55 @@
 # Estimated Monthly National Accounts for the United States
 
-Replication code for Philip Barrett's monthly GDP nowcasting model: a state-space
-model (GMM-estimated state/observation equations, Kalman filter/smoother) that
-estimates a monthly-frequency U.S. real GDP series (plus 8 NIPA components) from
-public monthly indicators.
+This is the replication code for the paper:
 
-This is the **public replication repo** — minimal runnable code only. It pulls all
-data from public sources (FRED, BEA); no data license or paid subscription is
-required to reproduce the baseline results.
+Barrett, Philip. ["Estimated Monthly National Accounts for the United
+States,"](https://www.imf.org/en/publications/wp/issues/2025/07/03/estimated-monthly-national-accounts-for-the-united-states-568032)
+IMF Working Paper.
 
-## Setup
+The paper builds a monthly-frequency estimate of U.S. real GDP (plus 8 NIPA
+components) from public monthly indicators, using a state-space model estimated
+by GMM with a Kalman filter/smoother. All data used here is pulled from public
+sources (FRED, BEA) — no paid subscription or data license is required to
+reproduce the results.
 
-1. R (tested on R >= 4.x) with the packages listed below.
-2. Free API keys:
-   - FRED: <https://fred.stlouisfed.org/docs/api/api_key.html> (instant signup)
-   - BEA: <https://apps.bea.gov/api/signup/> (instant signup)
+## Quick start
+
+1. Install R (>= 4.x) and the packages listed below.
+2. Get two free API keys (both are instant, no approval wait):
+   - FRED: <https://fred.stlouisfed.org/docs/api/api_key.html>
+   - BEA: <https://apps.bea.gov/api/signup/>
 3. Copy `.Renviron.example` to `.Renviron` and fill in your keys:
    ```
    FRED_API_KEY=your_key_here
    BEA_API_KEY=your_key_here
    ```
+4. From the repo root, run:
+   ```r
+   Rscript code/R/sessions/mly_GDP.R
+   ```
 
-## Running the baseline model
+This downloads the underlying data, estimates the model, and writes the results
+to `outputs/baseline/`:
+- `final_data/output.xlsx` — the monthly GDP and component series, with trend
+  and standard-error estimates
+- `final_data/everything.rdata` — the full model object, for further analysis
+- `graphs/` and `tables/` — the paper's figures and tables
 
-```r
-# from the repo root
-Rscript code/R/sessions/mly_GDP.R
-```
-
-This pulls fresh data from FRED/BEA (cached locally in `data/raw_pulls/` — see
-below), estimates the model, and writes results to `outputs/baseline/`:
-`final_data/output.xlsx` (the estimated series + trend + standard errors),
-`final_data/everything.rdata` (full model object, for further analysis),
-`graphs/` and `tables/` (the paper's figures/tables).
-
-### Regenerating a specific robustness/validation variant
+## Regenerating a specific robustness/validation variant
 
 ```r
 Rscript code/R/sessions/run_variant.R <variant_name>
 ```
 
-See `code/R/sessions/variant_configs.R` for the full list of variants and exactly
-how each one differs from the baseline (every entry there is documented with the
-reasoning behind it, not just the override values).
+See `code/R/sessions/variant_configs.R` for the full list of variants and how
+each one differs from the baseline.
 
-### Data caching
+## Data caching
 
-Each pulled series' raw API response is cached at `data/raw_pulls/<label>.csv`,
-refreshed automatically once it's more than 7 days old (or immediately via
-`options$force.refresh = TRUE`). This avoids hammering the FRED/BEA APIs on
-repeated runs and doubles as an offline fallback. Delete a file in that folder
-(or the whole folder) to force a full refresh.
-
-### Validating your pull against the published results
-
-```r
-Rscript code/R/sessions/validate_data_sources.R          # checks each series against archived reference data
-Rscript code/R/sessions/validate_against_prior_release.R # checks the full model output against a prior release
-```
+Each pulled series is cached at `data/raw_pulls/<label>.csv`, refreshed
+automatically once it's more than 7 days old. This avoids repeated hits to the
+FRED/BEA APIs and doubles as an offline fallback. Delete a file in that folder
+(or the whole folder) to force a refresh.
 
 ## Package dependencies
 
@@ -72,21 +64,14 @@ Data pull: `fredr`, `httr2`.
 Output: `openxlsx`, `readxl`, `xtable`, `stargazer`, `sandwich`, `scales`,
 `reshape2`.
 
-`renv.lock` is not yet included in this repo — a known gap, on the list to add
-before submission (needed for the target journal's replication-archive policy).
-
 ## Licensing
 
 MIT (see `LICENSE`), with one exception: `code/R/functions/vendor/arma_to_ma.{cpp,R}`
 is vendored from the GPL-3-licensed `deseats` package and remains GPL-3 — see
-`code/R/functions/vendor/README.md` for why it's vendored rather than taken as a
-package dependency, and the licensing tradeoffs still open for a final decision.
+`code/R/functions/vendor/README.md`.
 
 ## Provenance
 
-This model was originally developed using Haver Analytics data (not
-redistributable). This repo is the public-data port: every Haver series has a
-documented public-source replacement — see `docs/data_sources.md` for the full
-series-by-series mapping, including two real data-sourcing bugs found and fixed
-during the port (mislabeled trade series, mislabeled housing-starts series) and
-one contradiction this surfaced in the working paper's own text.
+This model was originally developed using Haver Analytics data, which cannot be
+redistributed. This repo replaces every Haver-sourced series with a public
+equivalent — see `docs/data_sources.md` for the full series-by-series mapping.
