@@ -12,6 +12,15 @@ by GMM with a Kalman filter/smoother. All data used here is pulled from public
 sources (FRED, BEA) — no paid subscription or data license is required to
 reproduce the results.
 
+## Just want the data?
+
+Pre-built monthly GDP and component estimates (no R required) are in
+[`releases/`](releases) — three vintages, from the original working paper
+through the current update. See [`releases/README.md`](releases/README.md)
+for what's in each file.
+
+The rest of this README is for reproducing or rerunning the model yourself.
+
 ## Quick start
 
 1. Install R (>= 4.x) and the packages listed below.
