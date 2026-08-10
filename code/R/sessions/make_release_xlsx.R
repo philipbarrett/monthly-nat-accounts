@@ -47,10 +47,16 @@ make.release.file <- function(source.xlsx, out.path, subtitle, level.note.suffix
     writeData(wb, "README", data.frame(x = info), colNames = FALSE, startCol = 3, startRow = 3 + i)
   }
 
+  date.style <- createStyle(numFmt = "yyyy-mm-dd")
+  number.style <- createStyle(numFmt = "0.00")
+
   for (sn in sheets) {
     d <- read.xlsx(source.xlsx, sheet = sn)
+    d$date <- as.Date(d$date, origin = "1899-12-30")
     addWorksheet(wb, sn)
     writeData(wb, sn, d)
+    addStyle(wb, sn, date.style, rows = 2:(nrow(d) + 1), cols = 1, gridExpand = TRUE)
+    addStyle(wb, sn, number.style, rows = 2:(nrow(d) + 1), cols = 2:ncol(d), gridExpand = TRUE)
   }
 
   saveWorkbook(wb, out.path, overwrite = TRUE)

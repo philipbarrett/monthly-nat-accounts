@@ -162,6 +162,34 @@ but it requires no ongoing Haver access, just one small bundled CSV, and is full
 transparent about what it is and why. Flagging this explicitly at the Stage 1 and
 Stage 2 checkpoints rather than treating it as a minor implementation detail.
 
+**`inv_manuf` level-break fix (2026-08-10):** the splice above had a real defect,
+found by comparing 2025-08 vs. 2026-08 release standard errors and tracing an
+unexplained GDP-SE spike in 1996-07 to 1996-12 back to its source. `inv_manuf`'s
+public source (BEA Table 1BU, NAICS-based) starts in 1997-01 precisely because
+that's when manufacturing statistics switched from SIC to NAICS classification —
+unlike the other 6 spliced series, whose cutoffs are pure publication-history
+limits, not a classification change. The archived pre-1997 Haver segment had
+already been reconciled onto a consistent basis by Haver internally (confirmed: no
+break in the original pre-migration Haver-only series across 1996/1997 — 430,366
+→ 431,496, a normal 0.26% step), but concatenating it raw onto BEA's unreconciled
+NAICS levels reintroduced a 30.8% one-month "jump" at 1996-12→1997-01
+(430,366 → 562,788) that isn't a real economic move. Through
+`inv_manuf_chg = pc.diff(inv_manuf)`, that single bad observation inflated the
+Kalman smoother's delta-method parameter SE for several months either side of
+the boundary, across every state component (not just `invent`/`gdp`).
+
+**Fix applied:** rescaled the entire 1958-01 to 1996-12 `inv_manuf` splice segment
+by a constant factor `1.302698` (the mean live/archived level ratio over
+1997-01 to 1997-03, a tight, stable anchor — SD 0.004 across those 3 months).
+Because `inv_manuf_chg` only ever appears as `pc.diff()`, a uniform rescale of the
+whole segment leaves every pre-1997 month-over-month change mathematically
+unchanged (verified: max deviation 1.9e-16, floating-point noise) — it only fixes
+the one boundary transition, which now reads as a normal +0.38% month-over-month
+move instead of +30.8%. Not touched: the live (1997+) BEA-sourced values, which
+keep updating as before; the other 6 spliced series, which don't have this
+problem (checked directly — their boundary-month growth rates are all within a
+few normal percent).
+
 ## Dropped entirely (confirmed unused anywhere in the paper)
 
 ~16 series from the original `l.monthly.data` list are pulled by the old Haver code
