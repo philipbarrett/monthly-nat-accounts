@@ -20,9 +20,13 @@ from trend), `full_se`, `smoother_se`, and `ks_param_se` — monthly GDP and its
 | [`2026_08/`](2026_08) | Prior update | 2026-06 |
 | [`2026_11/`](2026_11) | Current | 2026-09 |
 
-[`compare_vintages_no_err.pdf`](compare_vintages_no_err.pdf) — one panel per
-component, overlaying every vintage above (no-error formulation) so you can see
-how each series has revised release-to-release.
-
 To reproduce these yourself, or regenerate on newer data, see the main
 [README](../README.md).
+
+## Vintage comparison
+
+One panel per component, overlaying every vintage above (no-error formulation)
+so you can see how each series has revised release-to-release. PDF version:
+[`compare_vintages_no_err.pdf`](compare_vintages_no_err.pdf).
+
+![Vintage comparison, no-error formulation](compare_vintages_no_err.png)
