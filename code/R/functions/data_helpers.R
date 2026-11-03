@@ -336,16 +336,31 @@ make.hat.dfs <- function( l.dfs, l.df.trend, options ){
   ar.resids <- options$ar.resids
   ar.order <- options$ar.order
   obs.match.ar <- options$obs.match.ar
-  
+  v.no.log <- l.df.trends$no.log
+    # Variables fit with a level (not log) trend -- i.e. ones whose raw series
+    # can go negative, so a log-linear trend isn't defined (currently invent and,
+    # when make.gdp.err=TRUE, err). The trend here is only ever used as the
+    # normalizer in hat=value/trend-1, not a quantity with its own economic
+    # meaning, so if the fitted level trend itself crosses zero (as happened for
+    # err once the post-2020 data ran far enough for its trend to cross, blowing
+    # hat up to +3780% right at the crossing) floor its magnitude away from zero
+    # rather than let hat diverge. 10 is comfortably below invent's own minimum
+    # |trend| (~11.7, reached at the very start of its sample in 1950) so this
+    # never binds for invent -- it only engages for a trend actually near a
+    # zero-crossing.
+
   #### 2. Make deviations ####
-  
+
   ## 2.1 Quarterly data ##
   df.y.hat <- df.y %>%
     gather( variable, value, -date, -t ) %>%
-    left_join( df.y.bar %>% 
+    left_join( df.y.bar %>%
                  gather( variable, trend, -date, -t) %>%
                  mutate( variable = gsub('.bar', '', variable) ),
                by=c('date', 't', 'variable' ) ) %>%
+    mutate( trend = if_else( variable %in% v.no.log,
+                              if_else( trend >= 0, pmax(trend, 10), pmin(trend, -10) ),
+                              trend ) ) %>%
     mutate( hat=value/trend - 1 )
   
   

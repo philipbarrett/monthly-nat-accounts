@@ -17,7 +17,8 @@ from trend), `full_se`, `smoother_se`, and `ks_param_se` — monthly GDP and its
 |---|---|---|
 | [`2025_07_initialWP/`](2025_07_initialWP) | As published in the original IMF working paper | 2025-03 |
 | [`2025_08/`](2025_08) | Prior update | 2025-06 |
-| [`2026_08/`](2026_08) | Current | 2026-06 |
+| [`2026_08/`](2026_08) | Prior update | 2026-06 |
+| [`2026_11/`](2026_11) | Current | 2026-09 |
 
 To reproduce these yourself, or regenerate on newer data, see the main
 [README](../README.md).

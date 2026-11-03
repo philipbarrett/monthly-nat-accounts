@@ -15,7 +15,7 @@ reproduce the results.
 ## Just want the data?
 
 Pre-built monthly GDP and component estimates (no R required) are in
-[`releases/`](releases) — three vintages, from the original working paper
+[`releases/`](releases) — four vintages, from the original working paper
 through the current update. See [`releases/README.md`](releases/README.md)
 for what's in each file.
 
